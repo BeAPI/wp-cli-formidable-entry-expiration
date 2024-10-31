@@ -1,0 +1,20 @@
+{
+  "name": "beapi/wp-cli-formidable-entry-expiration",
+  "description": "Clean Formidable Forms entries",
+  "type": "wp-cli-package",
+  "homepage": "https://github.com/beapi/wp-cli-formidable-entry-expiration",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.0"
+  },
+  "authors": [
+    {
+      "name": "Jules Fell",
+      "email": "jfell@beapi.fr"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "files": [ "command.php" ]
+  }
+}
