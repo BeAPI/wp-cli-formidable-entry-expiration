@@ -49,13 +49,19 @@ class Clean_Formidable_Entries extends \WP_CLI_Command {
 
 		$formatted_expired_time = date( 'Y-m-d H:i:s', $expired_time );
 		WP_CLI::log( 'Start the cleaning process for entries before : ' . $formatted_expired_time );
-		// Retrieve IDs of entries to delete
+
+		// Count entries to delete
+		$total_entries = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(id) FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
+			$formatted_expired_time
+		) );
+
+		// Get entry IDs to delete
 		$entry_ids = $wpdb->get_col( $wpdb->prepare(
 			"SELECT id FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
 			$formatted_expired_time
 		) );
 
-		$total_entries = count( $entry_ids );
 		if ( 0 === $total_entries ) {
 			WP_CLI::warning( 'No entries to delete.' );
 
@@ -65,18 +71,19 @@ class Clean_Formidable_Entries extends \WP_CLI_Command {
 		if ( $dry_run ) {
 			WP_CLI::warning( sprintf( 'Dry run: %d entries would be deleted.', $total_entries ) );
 		} else {
+
+			// Delete entries
+			$rows_affected = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
+				$formatted_expired_time
+			) );
+
 			// Delete metadata associated with entries
 			$wpdb->query( $wpdb->prepare(
 				"DELETE FROM {$wpdb->prefix}frm_item_metas WHERE item_id IN (" . implode( ',', $entry_ids ) . ")"
 			) );
 
-			// Delete entries
-			$wpdb->query( $wpdb->prepare(
-				"DELETE FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
-				$formatted_expired_time
-			) );
-
-			WP_CLI::success( sprintf( '%d entries deleted.', $total_entries ) );
+			WP_CLI::success( sprintf( '%d entries deleted.', $rows_affected ) );
 		}
 
 		WP_CLI::log( 'End cleaning of Formidable Forms expired entries and associated metas' );
