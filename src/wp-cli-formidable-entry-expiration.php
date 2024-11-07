@@ -56,17 +56,17 @@ class Clean_Formidable_Entries extends \WP_CLI_Command {
 			$formatted_expired_time
 		) );
 
-		// Get entry IDs to delete
-		$entry_ids = $wpdb->get_col( $wpdb->prepare(
-			"SELECT id FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
-			$formatted_expired_time
-		) );
-
 		if ( 0 === $total_entries ) {
 			WP_CLI::warning( 'No entries to delete.' );
 
 			return;
 		}
+
+		// Get entry IDs to delete
+		$entry_ids = $wpdb->get_col( $wpdb->prepare(
+			"SELECT id FROM {$wpdb->prefix}frm_items WHERE created_at < %s",
+			$formatted_expired_time
+		) );
 
 		if ( $dry_run ) {
 			WP_CLI::warning( sprintf( 'Dry run: %d entries would be deleted.', $total_entries ) );
